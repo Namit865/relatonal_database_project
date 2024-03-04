@@ -20,10 +20,17 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           Obx(
             () => IconButton(
-              onPressed: () {},
-              icon: const Icon(CupertinoIcons.sun_dust_fill),
+              onPressed: () {
+                blogPostController.themeChange();
+              },
+              icon: blogPostController.isDark.value
+                  ? const Icon(CupertinoIcons.sun_max)
+                  : const Icon(CupertinoIcons.moon_zzz),
             ),
           ),
+          const SizedBox(
+            width: 20,
+          )
         ],
         title: const Text('Blog Platform'),
       ),

@@ -1,12 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:relatonal_database_project/Model/lightdark.dart';
 import '../../../Helper/database_helper.dart';
 import '../../../Model/blogmodel.dart';
 
 class BlogPostController extends GetxController {
   RxList blogPosts = [].obs;
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-  themeMode mode = themeMode(isdark: false.obs);
+  RxBool isDark = false.obs;
+
 
   @override
   void onInit() {
@@ -18,7 +19,7 @@ class BlogPostController extends GetxController {
     await _databaseHelper.initializeDatabase();
     List<BlogPost> newBlogPosts = await _databaseHelper.getBlogPosts().then(
           (posts) => posts.map((post) => BlogPost.fromMap(post)).toList(),
-    );
+        );
     blogPosts.value = RxList.from(newBlogPosts);
     update();
   }
@@ -39,8 +40,8 @@ class BlogPostController extends GetxController {
     update();
   }
 
-  void themeChange(){
-    mode.isdark != mode.isdark;
+  void themeChange() {
+    isDark != isDark;
+    Get.changeThemeMode(isDark.value ? ThemeMode.light : ThemeMode.dark);
   }
-
 }
