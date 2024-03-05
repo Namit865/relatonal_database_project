@@ -6,6 +6,7 @@ class HomeScreenController extends GetxController{
     const int maxLines = 2;
     final lines = description.split('\n');
 
+
     if (lines.length <= maxLines) {
       return description;
     } else {

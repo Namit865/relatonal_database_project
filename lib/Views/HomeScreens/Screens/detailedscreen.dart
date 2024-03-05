@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DetailScreenBlog extends StatefulWidget {
   final Map<String, dynamic> news;
 
-  const DetailScreenBlog({Key? key, required this.news}) : super(key: key);
+  const DetailScreenBlog({super.key, required this.news});
 
   @override
   State<DetailScreenBlog> createState() => _DetailScreenBlogState();

@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
     dataBaseHelper.closeDatabase();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

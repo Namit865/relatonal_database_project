@@ -9,7 +9,6 @@ class DataBaseHelper {
     _database = await initDataBase();
     return _database!;
   }
-
   Future<Database> initDataBase() async {
     final path = join(await getDatabasesPath(), 'news_database.db');
     return await openDatabase(
@@ -38,7 +37,7 @@ class DataBaseHelper {
 
   Future<List<Map<String, dynamic>>> getAllNews() async {
     final db = await database;
-    return await db.query('news') ?? [];
+    return await db.query('news');
   }
 
   Future<void> closeDatabase() async {
