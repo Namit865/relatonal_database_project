@@ -39,6 +39,7 @@ dependencies:
   sqflite:
   path:
   get:
+  animated_appbar: ^2.1.5
 
 dev_dependencies:
   flutter_test:

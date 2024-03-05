@@ -1,92 +1,72 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:relatonal_database_project/Views/HomeScreens/Screens/blogdetailed.dart';
-import '../Controller/blogcontroller.dart';
-import 'addblog.dart';
+import 'package:relatonal_database_project/Views/HomeScreens/Controller/blogcontroller.dart';
+import 'package:relatonal_database_project/Views/HomeScreens/Screens/detailedscreen.dart';
+
+import '../../../Helper/database_helper.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final BlogPostController blogPostController = Get.put(BlogPostController());
+  HomeScreenController controller = Get.put(HomeScreenController());
+  final DataBaseHelper dataBaseHelper = DataBaseHelper();
+
+  @override
+  void dispose() {
+    dataBaseHelper.closeDatabase();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Obx(
-            () => IconButton(
-              onPressed: () {
-                blogPostController.themeChange();
-              },
-              icon: blogPostController.isDark.value
-                  ? const Icon(CupertinoIcons.sun_max)
-                  : const Icon(CupertinoIcons.moon_zzz),
-            ),
-          ),
-          const SizedBox(
-            width: 20,
-          )
-        ],
-        title: const Text('Blog Platform'),
+        title: const Text('Blogs'),
       ),
-      body: _buildBlogList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.dialog(AddBlogPostDialog());
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildBlogList() {
-    return Obx(
-      () => ListView.builder(
-        itemCount: blogPostController.blogPosts.length,
-        itemBuilder: (context, index) {
-          final post = blogPostController.blogPosts[index];
-          return Card(
-            color: Colors.black54,
-            child: ListTile(
-              onTap: () {
-                Get.to(() => detailedBlogScreen(post: post));
-              },
-              onLongPress: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text(
-                        "Are You Sure Want to Delete this Post?",
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            blogPostController.deleteBlogPost(post.id!);
-                            Get.back();
-                          },
-                          child: const Text("Ok"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: const Text("Cancel"),
-                        ),
-                      ],
+      body: FutureBuilder(
+        future: dataBaseHelper.getAllNews(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LinearProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            final newsList = snapshot.data as List<Map<String, dynamic>>;
+            return ListView.builder(
+              itemCount: newsList.length,
+              itemBuilder: (context, index) {
+                final news = newsList[index];
+                return GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      () => DetailScreenBlog(news: news),
                     );
                   },
+                  child: Card(
+                    elevation: 10,
+                    color: Colors.white24,
+                    child: ListTile(
+                      title: Text(news['title'] ?? ''),
+                      subtitle: Text(
+                        controller
+                            .truncateDescription(news['description'] ?? ''),
+                      ),
+                      leading: Container(
+                        height: 60,
+                        width: 80,
+                        child: Image.network(news['imageurl'] ?? ''),
+                      ),
+                    ),
+                  ),
                 );
               },
-              title: Text(post.title),
-              subtitle: Text("${post.content}"),
-            ),
-          );
+            );
+          }
         },
       ),
     );

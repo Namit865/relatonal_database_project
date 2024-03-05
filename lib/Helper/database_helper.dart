@@ -1,42 +1,48 @@
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
-class DatabaseHelper {
-  late Database _database;
+class DataBaseHelper {
+  static Database? _database;
 
-  Future<void> initializeDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'blog.db');
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await initDataBase();
+    return _database!;
+  }
 
-    _database = await openDatabase(
+  Future<Database> initDataBase() async {
+    final path = join(await getDatabasesPath(), 'news_database.db');
+    return await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE blog_posts(id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT)',
-        );
+        db.execute(''' CREATE TABLE news(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        author TEXT,
+        description TEXT,
+        content TEXT,
+        imageurl TEXT,
+        published_time TEXT,
+        name TEXT
+        )
+        ''');
       },
     );
   }
 
-  Future<int> insertBlogPost(Map<String, dynamic> blogPost) async {
-    return await _database.insert('blog_posts', blogPost);
+  Future<void> insertNews(Map<String, dynamic> news) async {
+    final db = await database;
+    await db.insert('news', news, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Map<String, dynamic>>> getBlogPosts() async {
-    return await _database.query('blog_posts');
+  Future<List<Map<String, dynamic>>> getAllNews() async {
+    final db = await database;
+    return await db.query('news') ?? [];
   }
 
-  Future<void> updateBlogPost(Map<String, dynamic> blogPost) async {
-    await _database.update(
-      'blog_posts',
-      blogPost,
-      where: 'id = ?',
-      whereArgs: [blogPost['id']],
-    );
-  }
-
-  Future<void> deleteBlogPost(int id) async {
-    await _database.delete('blog_posts', where: 'id = ?', whereArgs: [id]);
+  Future<void> closeDatabase() async {
+    final db = await database;
+    await db.close();
   }
 }
