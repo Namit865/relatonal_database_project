@@ -15,6 +15,7 @@ void fetchNews(DataBaseHelper dataBaseHelper) async {
       final newsData = json.decode(response.body);
       print('API Response: $newsData');
 
+
       if (newsData['articles'] != null) {
         final articles = newsData['articles'];
         for (var e in articles) {
